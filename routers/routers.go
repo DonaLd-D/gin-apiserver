@@ -10,6 +10,7 @@ import (
 )
 
 func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
+	//加载中间件
 	g.Use(gin.Recovery())
 	g.Use(middleware.NoCache)
 	g.Use(middleware.Options)
@@ -19,7 +20,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	g.NoRoute(func(c *gin.Context) {
 		c.String(http.StatusNotFound, "The incorrect API route.")
 	})
-
+	//处理请求
 	svcd := g.Group("/sd")
 	{
 		svcd.GET("/health", sd.HealthCheck)

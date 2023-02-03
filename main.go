@@ -7,15 +7,30 @@ import (
 	"time"
 
 	"github.com/junhui/gin_demo/routers"
+	"github.com/junhui/gin_demo/config"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+)
+
+var (
+	cfg = pflag.StringP("config", "c", "", "apiserver config file path.")
 )
 
 func main() {
+	pflag.Parse()
+	// 配置初始化
+	if err := config.Init(*cfg); err != nil {
+		panic(err)
+	}
+	gin.SetMode(viper.GetString("runmode"))
+
+	//gin实例
 	g := gin.New()
-
+	//加载中间件
 	middlewares := []gin.HandlerFunc{}
-
+	//加载路由
 	routers.Load(
 		g,
 		middlewares...,
