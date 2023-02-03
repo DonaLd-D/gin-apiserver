@@ -8,6 +8,7 @@ import (
 
 	"github.com/junhui/gin_demo/routers"
 	"github.com/junhui/gin_demo/config"
+	"github.com/junhui/gin_demo/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
@@ -26,6 +27,10 @@ func main() {
 	}
 	gin.SetMode(viper.GetString("runmode"))
 
+	// init db
+	model.DB.Init()
+	defer model.DB.Close()
+
 	//gin实例
 	g := gin.New()
 	//加载中间件
@@ -43,13 +48,13 @@ func main() {
 		log.Print("The router has been deployed successfully.")
 	}()
 
-	log.Printf("Start to listening the incoming requests on http address: %s", ":8080")
-	log.Printf(http.ListenAndServe(":8080", g).Error())
+	log.Printf("Start to listening the incoming requests on http address%s", viper.GetString("addr"))
+	log.Printf(http.ListenAndServe(viper.GetString("addr"), g).Error())
 }
 
 func pingServer() error {
-	for i := 0; i < 2; i++ {
-		resp, err := http.Get("http://127.0.0.1:8080" + "/sd/health")
+	for i := 0; i < viper.GetInt("max_ping_count"); i++ {
+		resp, err := http.Get(viper.GetString("url") +viper.GetString("addr")+ "/sd/health")
 		if err == nil && resp.StatusCode == 200 {
 			return nil
 		}
